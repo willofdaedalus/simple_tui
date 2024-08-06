@@ -1,4 +1,8 @@
 package table
 
-func FindLongestEntry(t *table) {
+type column struct {
+	header  string
+	entries []string
+	width   int
 }
+

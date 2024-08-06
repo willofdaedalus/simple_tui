@@ -7,7 +7,10 @@ import (
 )
 
 func main() {
-	fmt.Print(table.DrawHeader("hello world", true, 0, table.RIGHT_BORDER | table.LEFT_BORDER))
-	fmt.Print(table.DrawHeader("this is a test", true, 0, table.LEFT_BORDER))
-	fmt.Print(table.DrawHeader("what's this?", true, 0, table.RIGHT_BORDER))
+	t := table.NewTable([]string{"id", "item", "price", "quantity"}).
+		AddRow([]string{"0", "apple", "0.50", "60"}).
+		AddRow([]string{"0", "apple", "0.50", "60"})
+
+
+	fmt.Print(t.DrawTable())
 }
