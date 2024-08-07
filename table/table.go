@@ -12,10 +12,11 @@ const (
 )
 
 type table struct {
-	title string
-	width   int
-	shorten bool
-	rows    [][]string
+	title      string
+	width      int
+	truncate   bool
+	longestRow int
+	rows       [][]string
 }
 
 func NewTable(row []string) *table {
@@ -40,7 +41,9 @@ func (t *table) AddRows(rows [][]string) *table {
 }
 
 func (t *table) SetWidth(w int) *table {
-	t.width = w
+	if w > 0 {
+		t.width = w
+	}
 	return t
 }
 
@@ -49,8 +52,8 @@ func (t *table) Title(s string) *table {
 	return t
 }
 
-func (t *table) Truncate(b bool) *table {
-	t.shorten = b
+func (t *table) noTruncate(b bool) *table {
+	t.truncate = b
 	return t
 }
 

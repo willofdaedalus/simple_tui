@@ -7,43 +7,68 @@ import (
 
 func (t *table) drawHeader(headers []string) string {
 	var b strings.Builder
-	longest := t.width
-
 	// calculate total length of the header line
-	totalLen := ((3 + longest) * len(headers)) + 1
+	offset := 2   // offset accounts for the spaces before and after each entry
+	ellipsis := 3 // number of dots to append if shorten is true
+	totalLen := ((offset + t.width + ellipsis) * len(headers)) + 1
 
 	// build the top border
-	b.WriteString(strings.Repeat("-", totalLen))
+	b.WriteString(strings.Repeat("-", totalLen + 3))
 	b.WriteString("\n")
 
 	// build the header row
 	for _, header := range headers {
-		padding := strings.Repeat(" ", longest-len(header))
-		b.WriteString(fmt.Sprintf("| %s%s ", header, padding))
+		str := header
+		strLen := len(header)
+		pad := ""
+
+		if strLen < t.width {
+			pad = strings.Repeat("*", t.width - strLen)
+		}
+
+		b.WriteString(fmt.Sprintf("| %s%s ", str, pad))
 	}
 	b.WriteString("|\n")
 
 	// build the bottom border
-	b.WriteString(strings.Repeat("-", totalLen))
+	b.WriteString(strings.Repeat("-", totalLen+3))
 	b.WriteString("\n")
 
 	return b.String()
 }
 
+func truncateText(s string, w int) (string, int) {
+	var str string
+
+	if len(str) > w {
+		str = fmt.Sprintf("%s... ", s[:w])
+	} else if (len(str) == w) || (len(str) < w) {
+		str = fmt.Sprintf("%s%s ", s, strings.Repeat("*", w + 2))
+	}
+
+	return str, len(str)
+}
+
 func (t *table) drawRow(row []string, colCount int, end bool) string {
 	var builder strings.Builder
-	longest := t.width
-	totalLen := ((3 + longest) * len(row)) + 1
+	// calculate total length of the header line
+	offset := 2   // offset accounts for the spaces before and after each entry
+	ellipsis := 3 // number of dots to append if shorten is true
+	totalLen := ((offset + t.width + ellipsis) * len(row)) + 1
 
 	for i, cell := range row {
 		if i < colCount {
 			str := cell
-			if len(cell) > t.width && t.shorten {
-				str = fmt.Sprintf("%s...", cell[:t.width-4])
+			if len(cell) > t.width && t.truncate {
+				str = fmt.Sprintf("%s...", cell[:t.width])
 			}
 
-			padding := strings.Repeat(" ", longest-len(cell))
-			builder.WriteString(fmt.Sprintf("| %s%s ", str, padding))
+			padding := "*"
+			if len(cell) < t.width {
+				// spread := t.width - len(dynamicStr)
+				padding = strings.Repeat("*", t.width+ellipsis)
+			}
+			builder.WriteString(fmt.Sprintf("| %s%s", str, padding))
 		}
 	}
 	builder.WriteString("|\n")
