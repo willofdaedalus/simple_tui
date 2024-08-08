@@ -5,20 +5,13 @@ import (
 	"strings"
 )
 
-const (
-	NO_BORDER    = 0
-	LEFT_BORDER  = 1 << 1
-	RIGHT_BORDER = 1 << 2
-)
-
 type table struct {
-	title      string
-	width      int
-	truncate   bool
-	longestRow int
-	rows       [][]string
+	title string     // title for the table
+	width int        // width of each individual cell on a row
+	rows  [][]string // all rows in the table
 }
 
+// NewTable creates a new table that can be populated
 func NewTable(row []string) *table {
 	t := &table{
 		rows:  make([][]string, 0),
@@ -28,11 +21,13 @@ func NewTable(row []string) *table {
 	return t
 }
 
+// AddRow adds a single row to the table
 func (t *table) AddRow(row []string) *table {
 	t.rows = append(t.rows, row)
 	return t
 }
 
+// AddRows adds rows to the table. Currently untested
 func (t *table) AddRows(rows [][]string) *table {
 	for _, row := range rows {
 		t.rows = append(t.rows, row)
@@ -40,6 +35,7 @@ func (t *table) AddRows(rows [][]string) *table {
 	return t
 }
 
+// SetWidth sets the width of each cell in each row
 func (t *table) SetWidth(w int) *table {
 	if w > 0 {
 		t.width = w
@@ -47,18 +43,16 @@ func (t *table) SetWidth(w int) *table {
 	return t
 }
 
+// Title sets a title that printed above the table when DrawTable() is called
 func (t *table) Title(s string) *table {
 	t.title = s
 	return t
 }
 
-func (t *table) noTruncate(b bool) *table {
-	t.truncate = b
-	return t
-}
-
-func (t *table) DrawTable() {
+// DrawTable formats and returns the table in ASCII format ready for printing
+func (t *table) DrawTable() string {
 	var builder strings.Builder
+	var rowRep string
 	var columnCount int
 
 	if len(t.title) != 0 {
@@ -66,15 +60,23 @@ func (t *table) DrawTable() {
 	}
 
 	for i, row := range t.rows {
+		// first slice is always considered the header
 		if i == 0 {
-			builder.WriteString(t.drawHeader(row))
+			rowRep = t.drawHeader(row)
+
+			builder.WriteString(drawBorderLine(rowRep))
+			builder.WriteString(rowRep)
+			builder.WriteString(drawBorderLine(rowRep))
+
 			columnCount = len(row)
-		} else if i == len(t.rows)-1 {
-			builder.WriteString(t.drawRow(row, columnCount, true))
-		} else {
-			builder.WriteString(t.drawRow(row, columnCount, false))
+			continue
 		}
+
+		builder.WriteString(t.drawRow(row, columnCount))
 	}
 
-	fmt.Println(builder.String())
+	// draw the final line at the bottom
+	builder.WriteString(drawBorderLine(rowRep))
+
+	return builder.String()
 }
