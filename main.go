@@ -7,17 +7,13 @@ import (
 )
 
 func main() {
-	t2 := table.NewTable([]string{"member", "real name", "super power"}).
-		Title("superheroes I guess").
+	t2 := table.NewTable([]string{"member", "real name li 12234567", "super power"}).
+		Title("8").
+		SetWidth(25).
 		AddRow([]string{"spiderman", "peter parker"}).
-		AddRow([]string{"", "", ""}).
 		AddRow([]string{"hawkeye", "clint barton", "arrow powers"}).
 		AddRow([]string{"ironman", "tony stark", "rich powers"})
 
-	for i := 1; i <= 14; i += 1 {
-		t2.SetWidth(i).
-			Title(fmt.Sprintf("i: %d", i))
-		fmt.Println(t2.DrawTable())
-	}
+	fmt.Println(t2.DrawTable())
 
 }

@@ -8,38 +8,59 @@ import (
 // formatRowWrap recursively formats a row for rendering
 func formatRowWrap(t *table, row []string) string {
 	var b strings.Builder
-	// remainder gets passed to the next recursive run of formatRowWrap
-	// printables contains the strings that will be added to the strings builder
 	var remainder, printables []string
 
 	for _, header := range row {
+		// determine chop point
+		chopPoint := t.width
 		if len(header) > t.width {
-			printables = append(printables, header[:t.width])
-			remainder = append(remainder, header[t.width:])
+			spaceIndex := strings.LastIndex(header[:t.width], " ")
+			if spaceIndex != -1 {
+				chopPoint = spaceIndex + 1 // include space in current line
+			} else {
+				chopPoint = t.width
+			}
+		}
+
+		// ensure chopPoint does not exceed the header's length
+		if chopPoint > len(header) {
+			chopPoint = len(header)
+		}
+
+		// prepare current line and remainder
+		currentPrint := header[:chopPoint]
+		remainingPart := header[chopPoint:]
+
+		// ensure the current line fits within the width and is properly padded
+		if len(currentPrint) < t.width {
+			currentPrint += strings.Repeat(" ", t.width-len(currentPrint))
+		}
+		printables = append(printables, currentPrint)
+
+		// remainder should carry over
+		if len(remainingPart) > 0 {
+			remainder = append(remainder, remainingPart)
 		} else {
-			paddedHeader := fmt.Sprintf("%s%s", header, strings.Repeat(" ", t.width - len(header)))
-			printables = append(printables, paddedHeader)
 			remainder = append(remainder, strings.Repeat(" ", t.width))
 		}
 	}
 
-	// Build the current line
-	b.WriteByte('|') // first | in the row
+	// build the current line
+	b.WriteByte('|')
 	for _, s := range printables {
 		b.WriteString(fmt.Sprintf(" %s |", s))
 	}
-	b.WriteByte('\n') // move cursor to next line
+	b.WriteByte('\n')
 
 	// recursively handle remainder
-	if hasEmptyEntries(remainder) {
+	if hasNonEmptyEntries(remainder) {
 		b.WriteString(formatRowWrap(t, remainder))
 	}
 
 	return b.String()
 }
 
-// helper function to check if there are any non-empty strings in the remainder
-func hasEmptyEntries(row []string) bool {
+func hasNonEmptyEntries(row []string) bool {
 	for _, header := range row {
 		if len(strings.TrimSpace(header)) > 0 {
 			return true
