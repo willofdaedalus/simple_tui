@@ -9,7 +9,7 @@ import (
 func main() {
 	t2 := table.NewTable([]string{"member", "real name li 12234567", "super power"}).
 		Title("8").
-		SetWidth(25).
+		SetWidth(8).
 		AddRow([]string{"spiderman", "peter parker"}).
 		AddRow([]string{"hawkeye", "clint barton", "arrow powers"}).
 		AddRow([]string{"ironman", "tony stark", "rich powers"})

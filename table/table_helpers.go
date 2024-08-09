@@ -12,24 +12,25 @@ func formatRowWrap(t *table, row []string) string {
 
 	for _, header := range row {
 		// determine chop point
-		chopPoint := t.width
+		splitPoint := t.width
 		if len(header) > t.width {
 			spaceIndex := strings.LastIndex(header[:t.width], " ")
 			if spaceIndex != -1 {
-				chopPoint = spaceIndex + 1 // include space in current line
+				splitPoint = spaceIndex + 1 // include space in current line
 			} else {
-				chopPoint = t.width
+				splitPoint = t.width
 			}
 		}
 
-		// ensure chopPoint does not exceed the header's length
-		if chopPoint > len(header) {
-			chopPoint = len(header)
+		// ensure splitPoint does not exceed the header's length
+		if splitPoint > len(header) {
+			splitPoint = len(header)
 		}
 
 		// prepare current line and remainder
-		currentPrint := header[:chopPoint]
-		remainingPart := header[chopPoint:]
+		// trim any whitespace
+		currentPrint := strings.Trim(header[:splitPoint], " ")
+		remainingPart := strings.Trim(header[splitPoint:], " ")
 
 		// ensure the current line fits within the width and is properly padded
 		if len(currentPrint) < t.width {

@@ -6,9 +6,10 @@ import (
 )
 
 type table struct {
-	title string     // title for the table
-	width int        // width of each individual cell on a row
-	rows  [][]string // all rows in the table
+	title      string     // title for the table
+	width      int        // width of each individual cell on a row
+	rows       [][]string // all rows in the table
+	dynamicRows bool
 }
 
 // NewTable creates a new table that can be populated
@@ -32,6 +33,11 @@ func (t *table) AddRows(rows [][]string) *table {
 	for _, row := range rows {
 		t.rows = append(t.rows, row)
 	}
+	return t
+}
+
+func (t *table) Dynamic(b bool) *table {
+	t.dynamicRows = b
 	return t
 }
 
